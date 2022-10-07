@@ -12,7 +12,7 @@ PJ_RPI.h
 stdio.h
 -
 mysql.h
--
+/home/pi/les/Opdracht1/Source/mysql.h
 stdlib.h
 -
 

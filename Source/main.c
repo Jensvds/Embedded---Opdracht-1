@@ -21,6 +21,19 @@ void finish_with_error(MYSQL *con)
 
 int main()
 {
+	printf("hello world\r\n");
+
+	if(map_peripheral(&gpio) == -1) 
+	{
+			printf("Failed to map the physical GPIO registers into the virtual memory space.\n");
+			return -1;
+	}
+
+	// Define gpio 17 as input
+	INP_GPIO(17);
+	INP_GPIO(27);
+	INP_GPIO(22);
+
 	if (GPIO_READ(17))
 		gpio17val = 1;
 	else
@@ -36,9 +49,9 @@ int main()
 	else
 		gpio22val = 0;
 
-	gpio17val = Prevgpio17val;
-	gpio27val = Prevgpio27val;
-	gpio22val = Prevgpio22val;
+	Prevgpio17val = gpio17val;
+	Prevgpio27val = gpio27val;
+	Prevgpio22val = gpio22val;
 
 	MYSQL *con = mysql_init(NULL);
 
@@ -54,20 +67,7 @@ int main()
 		finish_with_error(con);
 	}
 
-	if (map_peripheral(&gpio) == -1)
-	{
-		printf("Failed to map the physical GPIO registers into the virtual memory space.\n");
-		return -1;
-	}
-
-	// Define gpio 17 as input
-	INP_GPIO(17);
-	INP_GPIO(27);
-	INP_GPIO(22);
-
-	if (mysql_query(con, 'INSERT INTO gpiolog (Pin, Value) VALUES(22, '+gpio22val+')')) {
- 				finish_with_error(con);
-  			}
+    char s[50];
 
 	while (1)
 	{
@@ -87,32 +87,34 @@ int main()
 			gpio22val = 0;
 
 		if (gpio17val != Prevgpio17val){
-			if (mysql_query(con, 'INSERT INTO gpiolog (Pin, Value) VALUES(17, '+gpio17val+')')) {
+			sprintf(s,"INSERT INTO gpiolog (Pin, Value) VALUES(17, %d)",gpio17val);
+			if (mysql_query(con, s)) {
  				finish_with_error(con);
   			}
-			gpio17val = Prevgpio17val;
+			printf("Pin 17 changed value to %d\r\n",gpio17val);
+			Prevgpio17val = gpio17val;
 		}
 
 		if (gpio27val != Prevgpio27val){
-			if (mysql_query(con, 'INSERT INTO gpiolog (Pin, Value) VALUES(27, '+gpio27val+')')) {
+			sprintf(s,"INSERT INTO gpiolog (Pin, Value) VALUES(27, %d)",gpio27val);
+			if (mysql_query(con, s)) {
  				finish_with_error(con);
   			}
-			gpio27val = Prevgpio27val;
+			printf("Pin 27 changed value to %d\r\n",gpio27val);
+			Prevgpio27val = gpio27val;
 		}
 
 		if (gpio22val != Prevgpio22val){
-			if (mysql_query(con, 'INSERT INTO gpiolog (Pin, Value) VALUES(22, '+gpio22val+')')) {
+			sprintf(s,"INSERT INTO gpiolog (Pin, Value) VALUES(22, %d)",gpio22val);
+			if (mysql_query(con, s)) {
  				finish_with_error(con);
   			}
-			gpio22val = Prevgpio22val;
+			printf("Pin 22 changed value to %d\r\n",gpio22val);
+			Prevgpio22val = gpio22val;
 		}
 
 		sleep(1);
 	}
-
-	// if (mysql_query(con, "INSERT INTO gpiolog (Pin, Value) VALUES(1,'Audi',52642)")) {
-    //   finish_with_error(con);
-  	// }
 
 	return 0;
 }

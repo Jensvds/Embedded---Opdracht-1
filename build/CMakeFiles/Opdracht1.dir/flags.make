@@ -6,5 +6,5 @@ C_DEFINES =
 
 C_INCLUDES = -I/usr/include/mariadb -I/usr/include/mariadb/mysql
 
-C_FLAGS = 
+C_FLAGS = -g
 
