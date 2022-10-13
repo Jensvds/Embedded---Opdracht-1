@@ -113,7 +113,7 @@ int main()
 			Prevgpio22val = gpio22val;
 		}
 
-		sleep(1);
+		sleep(1/100);
 	}
 
 	return 0;
